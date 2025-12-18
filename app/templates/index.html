@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Ink Gallery Manager</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-layout">
+          <div>
+            <h1>🖼️ E-Ink Gallery Manager</h1>
+            <p>Upload and manage images for your e-ink display</p>
+          </div>
+          <button id="settingsMenuBtn" class="btn btn-edit">
+            ⚙️ Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="content" id="galleryView">
+        <div id="message" class="message"></div>
+
+        <div class="section">
+          <h2>Status</h2>
+          <div class="status">
+            <div class="status-item">
+              <div class="status-label">Total Images</div>
+              <div class="status-value" id="status-total">0</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Total Tags</div>
+              <div class="status-value" id="status-tags">0</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">API Status</div>
+              <div class="status-value" id="status-api">🔄</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Upload Image</h2>
+          <div class="upload-box" id="uploadBox">
+            <p>📁 Click to upload or drag and drop</p>
+            <small>Supported: JPG, PNG, GIF, BMP, WebP</small>
+            <input type="file" id="fileInput" accept="image/*" />
+            <div class="upload-form">
+              <input
+                type="text"
+                id="titleInput"
+                placeholder="Image title (optional)"
+                style="display: none"
+              />
+              <button id="uploadBtn" style="display: none">Upload</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Gallery</h2>
+          <div id="gallery" class="gallery">
+            <div class="empty-gallery">Loading gallery...</div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings View Modal -->
+    <div id="settingsView" class="settings-modal" style="display: none;">
+      <div class="settings-content">
+        <div class="settings-header">
+          <h2>⚙️ Settings</h2>
+          <button class="close-btn" id="closeSettingsBtn">
+            &times;
+          </button>
+        </div>
+
+        <div class="settings-body">
+          <!-- Display Configuration Section (Loaded via config-loader.js) -->
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <!-- Image Viewer Modal with Metadata -->
+    <div id="imageViewerModal" class="image-viewer">
+      <div class="image-viewer-content">
+        <div class="image-viewer-header">
+          <h3 id="viewerImageTitle">Image</h3>
+          <div class="image-viewer-header-actions">
+            <div class="eink-version-dropdown" id="einkVersionDropdown">
+              <button
+                class="btn-small btn-edit"
+                id="einkVersionBtn"
+                title="Open eink version in new tab"
+              >
+                📺 E-ink
+              </button>
+              <div class="eink-version-menu" id="einkVersionMenu"></div>
+            </div>
+            <button
+              class="btn-small btn-edit"
+              id="editFromViewerBtn"
+              title="Edit image metadata"
+            >
+              Edit
+            </button>
+            <button class="close-btn" id="closeImageViewerBtn">
+              &times;
+            </button>
+          </div>
+        </div>
+        <div class="image-viewer-body">
+          <div class="image-viewer-image">
+            <img id="viewerImage" src="" alt="Viewing image" />
+          </div>
+          <div class="image-viewer-metadata">
+            <div class="metadata-section">
+              <div class="metadata-label">Filename</div>
+              <div class="metadata-value" id="viewerFilename">-</div>
+            </div>
+
+            <div class="metadata-section">
+              <div class="metadata-label">Title</div>
+              <div
+                class="metadata-value"
+                id="viewerTitle"
+                class="metadata-empty"
+              >
+                No title
+              </div>
+            </div>
+
+            <div class="metadata-section">
+              <div class="metadata-label">Description</div>
+              <div
+                class="metadata-value"
+                id="viewerDescription"
+                class="metadata-empty"
+              >
+                No description
+              </div>
+            </div>
+
+            <div class="metadata-section">
+              <div class="metadata-label">Tags</div>
+              <div id="viewerTags" class="metadata-tags">
+                <span class="metadata-empty">No tags</span>
+              </div>
+            </div>
+
+            <div class="metadata-section">
+              <div class="metadata-label">Uploaded</div>
+              <div class="metadata-value" id="viewerUploaded">-</div>
+            </div>
+
+            <div class="metadata-section">
+              <div class="metadata-label">Size</div>
+              <div class="metadata-value" id="viewerSize">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metadata Modal -->
+    <div id="metadataModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📝 Edit Image Metadata</h2>
+          <button class="close-btn" onclick="closeMetadataModal()">
+            &times;
+          </button>
+        </div>
+
+        <form id="metadataForm">
+          <div class="form-group">
+            <label for="metadataTitle">Title</label>
+            <input
+              type="text"
+              id="metadataTitle"
+              placeholder="Enter image title"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="metadataDescription">Description</label>
+            <textarea
+              id="metadataDescription"
+              placeholder="Enter image description"
+            ></textarea>
+          </div>
+
+          <div class="tags-section">
+            <h3>Tags</h3>
+            <div id="existingTags" class="existing-tags"></div>
+
+            <div class="add-tag-form">
+              <input
+                type="text"
+                id="newTagInput"
+                placeholder="Add new tag..."
+              />
+              <button type="button" id="addTagBtn">Add</button>
+            </div>
+
+            <div
+              id="suggestedTags"
+              class="suggested-tags"
+              style="display: none; margin-top: 10px"
+            >
+              <small style="width: 100%; color: #999">Suggested:</small>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              id="cancelMetadataBtn"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn-primary" id="saveMetadataBtn">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Core application scripts -->
+    <script src="/static/logger.js"></script>
+    <script src="/static/ui-utils.js"></script>
+    <script src="/static/gallery.js"></script>
+    <script src="/static/image-viewer.js"></script>
+    <script src="/static/upload.js"></script>
+    <script src="/static/metadata.js"></script>
+    <script src="/static/eink.js"></script>
+    <script src="/static/settings.js"></script>
+    <script src="/static/app.js"></script>
+
+    <!-- External configuration scripts -->
+    <script src="/static/config-manager.js"></script>
+    <script src="/static/config-loader.js"></script>
+  </body>
+</html>

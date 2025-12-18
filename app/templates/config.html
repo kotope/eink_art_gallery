@@ -1,0 +1,73 @@
+<!-- Display Configuration Section (Loaded via JavaScript) -->
+<div class="settings-section">
+  <h3>Display Configuration</h3>
+  <p class="settings-description">
+    Edit and manage display model configurations. Modified files are retained
+    across addon updates.
+  </p>
+
+  <div style="margin-bottom: 20px">
+    <label for="displaySelect" class="display-label">
+      Select Display Model
+    </label>
+    <div class="display-select-wrapper">
+      <select id="displaySelect">
+        <option value="">Loading displays...</option>
+      </select>
+      <button id="refreshDisplaysBtn" class="btn btn-edit">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <div id="configEditorContainer" style="display: none">
+    <div id="configEditorContainer-display">
+      <label for="configEditor" id="configEditor-label">
+        YAML Configuration
+      </label>
+      <textarea
+        id="configEditor"
+        placeholder="Display configuration will appear here..."
+      ></textarea>
+    </div>
+
+    <div class="config-buttons-wrapper">
+      <button id="saveConfigBtn" class="btn btn-save">
+        💾 Save Configuration
+      </button>
+      <button id="resetConfigBtn" class="btn-small btn-edit">
+        ↺ Reset to Default
+      </button>
+      <button id="duplicateConfigBtn" class="btn-small btn-edit">
+        📋 Duplicate
+      </button>
+      <button id="exportConfigBtn" class="btn-small btn-edit">⬇️ Export</button>
+      <button
+        id="deleteConfigBtn"
+        class="btn-small btn-danger"
+        style="display: none"
+      >
+        🗑️ Delete Custom
+      </button>
+    </div>
+
+    <div id="configInfo" class="config-info-box">
+      <div><strong>Type:</strong> <span id="configTypeInfo">-</span></div>
+      <div>
+        <strong>Modified:</strong>
+        <span id="configModifiedInfo">-</span>
+      </div>
+      <div><strong>Status:</strong> <span id="configStatusInfo">-</span></div>
+    </div>
+  </div>
+
+  <div id="importConfigContainer">
+    <h4>Import Configuration</h4>
+    <div class="import-form-wrapper">
+      <input type="file" id="importConfigFile" accept=".yaml,.yml" />
+      <button id="importConfigBtn" class="btn btn-edit">⬆️ Import</button>
+    </div>
+    <label class="import-overwrite-label">
+      <input type="checkbox" id="overwriteImportCheckbox" />
+      Overwrite if exists
+    </label>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+aiohttp>=3.8.0
+aiofiles>=22.0.0
+pillow>=12.0.0
+pyyaml>=6.0
+numpy>=1.21.0
+# sqlite3 is built-in with Python, listed here for reference

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/app:cached
+      - /app/__pycache__
+      - ~/.eink_art_data:/data/eink_art:cached
+    ports:
+      - "8112:8112"
+    environment:
+      - PORT=8112
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    command: /bin/sleep infinity
+    stdin_open: true
+    tty: true
+

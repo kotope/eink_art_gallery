@@ -1,0 +1,23 @@
+# Configuration for 7.3-inch E-Ink Spectra 6 Display
+# Flexible 7.3 inch e-paper with 6 colors
+
+resolution:
+  width: 800
+  height: 480
+
+color_mapping:
+  # 3-bit color palette (8 colors)
+  # Each color is represented as [R, G, B]
+  palette:
+    - [0, 0, 0] # Black
+    - [255, 0, 0] # Red
+    - [0, 255, 0] # Green
+    - [0, 0, 255] # Blue
+    - [255, 255, 0] # Yellow
+    - [255, 255, 255] # White
+
+# Gamma correction
+# Default: 1.0 (no correction)
+# < 1.0 darkens the image
+# > 1.0 brightens the image
+gamma: 1.0
