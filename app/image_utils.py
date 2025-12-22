@@ -1,4 +1,3 @@
-import sys
 from PIL import Image, ImageOps
 import numpy as np
 import logging
@@ -37,7 +36,6 @@ def apply_gamma_correction(image, gamma=1.0):
 
 def process_image(
     input_path,
-    output_path,
     dither=True,
     resize=False,
     crop=False,
@@ -51,7 +49,6 @@ def process_image(
 
     Args:
         input_path: Path to the input image
-        output_path: Path to save the processed image
         dither: Whether to use dithering (default: True)
         resize: Whether to resize the image (default: False)
         crop: Whether to crop or letterbox when resizing (default: False)
@@ -59,6 +56,9 @@ def process_image(
         height: Target height (default: 480)
         palette_image: Optional PIL Image with palette. If None, uses 3-bit palette.
         gamma: Gamma correction value (default: 1.0 = no correction, < 1.0 brightens, > 1.0 darkens)
+
+    Returns:
+        PIL Image: The processed image with quantized palette applied
     """
     try:
         source = Image.open(input_path).convert("RGB")
@@ -105,21 +105,18 @@ def process_image(
 
         # Quantize to palette
         if palette_image is None:
-            print(f"❌ Error: No palette image provided.")
-            sys.exit(1)
+            raise ValueError("No palette image provided.")
 
         dither_mode = Image.Dither.FLOYDSTEINBERG if dither else Image.Dither.NONE
 
         output_image = source.quantize(palette=palette_image, dither=dither_mode)
-        output_image.save(output_path)
+        logger.info(f"✅ Processed {output_image.size[0]}x{output_image.size[1]} image successfully")
+        
+        return output_image
 
-        print(
-            f"✅ Success! Saved {output_image.size[0]}x{output_image.size[1]} image to: {output_path}"
-        )
-
-    except FileNotFoundError:
-        print(f"❌ Error: The file '{input_path}' was not found.")
-        sys.exit(1)
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {input_path}")
+        raise FileNotFoundError(f"The file '{input_path}' was not found.") from e
     except Exception as e:
-        print(f"❌ Error: {e}")
-        sys.exit(1)
+        logger.error(f"Error processing image: {e}")
+        raise

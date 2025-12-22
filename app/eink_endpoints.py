@@ -61,26 +61,25 @@ async def api_get_eink_image(gallery, request: web.Request) -> web.Response:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / filename
-            # Always save as PNG to avoid issues with palette mode images
-            output_file = temp_path / f"processed_{Path(filename).stem}.png"
 
             # Write original image
             async with aiofiles.open(input_file, 'wb') as f:
                 await f.write(data)
 
-            # Process image (synchronous operation)
-            process_image(
+            # Process image (synchronous operation) - returns PIL Image
+            processed_image = process_image(
                 input_path=str(input_file),
-                output_path=str(output_file),
                 dither=True,
                 resize=True,
                 crop=crop,
                 **params
             )
 
-            # Read processed image
-            async with aiofiles.open(output_file, 'rb') as f:
-                processed_data = await f.read()
+            # Convert PIL Image to PNG bytes
+            import io
+            png_buffer = io.BytesIO()
+            processed_image.save(png_buffer, format='PNG')
+            processed_data = png_buffer.getvalue()
 
         # Always return PNG for eink endpoint
         return web.Response(body=processed_data, content_type='image/png')
@@ -89,6 +88,12 @@ async def api_get_eink_image(gallery, request: web.Request) -> web.Response:
         return web.json_response(
             {"status": "error", "message": f"Image not found: {basename}"},
             status=404
+        )
+    except ValueError as e:
+        logger.error(f"Value error processing eink image: {e}")
+        return web.json_response(
+            {"status": "error", "message": str(e)},
+            status=400
         )
     except Exception as e:
         logger.error(f"Error processing eink image: {e}")
@@ -182,26 +187,25 @@ async def api_get_random_eink_image(gallery, request: web.Request) -> web.Respon
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / filename
-            # Always save as PNG to avoid issues with palette mode images
-            output_file = temp_path / f"processed_{Path(filename).stem}.png"
 
             # Write original image
             async with aiofiles.open(input_file, 'wb') as f:
                 await f.write(data)
 
-            # Process image (synchronous operation)
-            process_image(
+            # Process image (synchronous operation) - returns PIL Image
+            processed_image = process_image(
                 input_path=str(input_file),
-                output_path=str(output_file),
                 dither=True,
                 resize=True,
                 crop=True,
                 **params
             )
 
-            # Read processed image
-            async with aiofiles.open(output_file, 'rb') as f:
-                processed_data = await f.read()
+            # Convert PIL Image to PNG bytes
+            import io
+            png_buffer = io.BytesIO()
+            processed_image.save(png_buffer, format='PNG')
+            processed_data = png_buffer.getvalue()
 
         # Always return PNG for eink endpoint
         # Add custom header to indicate which image was selected
@@ -209,6 +213,18 @@ async def api_get_random_eink_image(gallery, request: web.Request) -> web.Respon
         response.headers['X-Selected-Image'] = filename
         return response
 
+    except FileNotFoundError as e:
+        logger.error(f"Image not found: {e}")
+        return web.json_response(
+            {"status": "error", "message": f"Image not found: {filename}"},
+            status=404
+        )
+    except ValueError as e:
+        logger.error(f"Value error processing random eink image: {e}")
+        return web.json_response(
+            {"status": "error", "message": str(e)},
+            status=400
+        )
     except Exception as e:
         logger.error(f"Error processing random eink image: {e}")
         return web.json_response(
@@ -343,26 +359,25 @@ async def api_get_next_eink_image(gallery, request: web.Request) -> web.Response
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / filename
-            # Always save as PNG to avoid issues with palette mode images
-            output_file = temp_path / f"processed_{Path(filename).stem}.png"
 
             # Write original image
             async with aiofiles.open(input_file, 'wb') as f:
                 await f.write(data)
 
-            # Process image (synchronous operation)
-            process_image(
+            # Process image (synchronous operation) - returns PIL Image
+            processed_image = process_image(
                 input_path=str(input_file),
-                output_path=str(output_file),
                 dither=True,
                 resize=True,
                 crop=True,
                 **params
             )
 
-            # Read processed image
-            async with aiofiles.open(output_file, 'rb') as f:
-                processed_data = await f.read()
+            # Convert PIL Image to PNG bytes
+            import io
+            png_buffer = io.BytesIO()
+            processed_image.save(png_buffer, format='PNG')
+            processed_data = png_buffer.getvalue()
 
         # Always return PNG for eink endpoint
         # Add custom headers to indicate which image was selected and its index
@@ -371,6 +386,18 @@ async def api_get_next_eink_image(gallery, request: web.Request) -> web.Response
         response.headers['X-Image-Index'] = str(next_index)
         return response
 
+    except FileNotFoundError as e:
+        logger.error(f"Image not found: {e}")
+        return web.json_response(
+            {"status": "error", "message": f"Image not found: {filename}"},
+            status=404
+        )
+    except ValueError as e:
+        logger.error(f"Value error processing next eink image: {e}")
+        return web.json_response(
+            {"status": "error", "message": str(e)},
+            status=400
+        )
     except Exception as e:
         logger.error(f"Error processing next eink image: {e}")
         return web.json_response(
