@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
     git \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
@@ -20,6 +21,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY app ./
+
+# Copy run script and make it executable
+COPY run.sh .
+RUN chmod +x /app/run.sh
 
 # Create data directory and set proper ownership
 RUN mkdir -p /data/eink_art/images && \
@@ -37,4 +42,4 @@ EXPOSE 8112
 USER appuser
 
 # Run application (for production)
-CMD ["python3", "app.py"]
+CMD ["/app/run.sh"]

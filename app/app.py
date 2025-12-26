@@ -679,9 +679,9 @@ async def main():
     logger.info(f"  IPv6: http://[::1]:{port}")
     logger.info(f"Images directory: {IMAGES_DIR}")
 
-    # Keep the server running
+    # Keep the server running indefinitely
     try:
-        await asyncio.sleep(3600 * 24)  # Sleep for a day
+        await asyncio.sleep(float('inf'))  # Run indefinitely
     except KeyboardInterrupt:
         logger.info("Shutting down...")
     finally:
@@ -690,5 +690,23 @@ async def main():
 
 if __name__ == "__main__":
     import asyncio
+    import signal
 
-    asyncio.run(main())
+    async def signal_handler(sig, frame):
+        """Handle shutdown signals gracefully"""
+        logger.info(f"Received signal {sig}, shutting down...")
+        raise KeyboardInterrupt()
+
+    # Register signal handlers for graceful shutdown
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(signal_handler(s, None)))
+
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        logger.info("Service stopped")
+    finally:
+        loop.close()

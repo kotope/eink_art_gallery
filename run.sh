@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Exit on any error
 set -e
 
 # Get port from environment variable or use default
@@ -11,5 +12,12 @@ echo "Starting E-Ink Gallery Service on port $PORT"
 # Export port for Python app
 export PORT
 
-# Run the Python application
-cd /app && python3 /app/app.py
+# Forward signals to the Python process
+trap 'kill -TERM $PID' TERM INT
+
+# Run the Python application in the foreground
+cd /app && python3 /app/app.py &
+PID=$!
+
+# Wait for the process to finish
+wait $PID
